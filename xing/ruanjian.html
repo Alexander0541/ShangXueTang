@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>题库管理 - 选择题+填空题</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+            background: #f4f7fc;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: #0f172a;
+            border-left: 4px solid #3b82f6;
+            padding-left: 12px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: #334155;
+            font-size: 14px;
+        }
+
+        input,
+        textarea,
+        select {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #cbd5e1;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: 0.2s;
+        }
+
+        input:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+        }
+
+        .option-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .option-letter {
+            width: 36px;
+            font-weight: 600;
+            color: #2563eb;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .checkbox-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        .btn-outline {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+        }
+
+        .btn-outline:hover {
+            background: #e2e8f0;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .search-box {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 24px;
+            align-items: center;
+        }
+
+        .search-box input {
+            flex: 2;
+            min-width: 150px;
+        }
+
+        .result-item {
+            border: 1px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 16px;
+            background: #ffffff;
+            transition: 0.1s;
+        }
+
+        .result-item:hover {
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+
+        .question-text {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 12px;
+            color: #0f172a;
+        }
+
+        .options-list {
+            margin-left: 20px;
+            margin-bottom: 12px;
+            color: #2d3e50;
+        }
+
+        .option-line {
+            margin: 4px 0;
+        }
+
+        .correct-answer {
+            background: #e6f7e6;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: #15803d;
+            font-weight: 500;
+            display: inline-block;
+            margin-top: 6px;
+        }
+
+        .empty-msg {
+            color: #64748b;
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        .delete-btn {
+            background: #ef4444;
+            padding: 4px 12px;
+            font-size: 12px;
+            margin-left: 12px;
+            border: none;
+        }
+
+        .delete-btn:hover {
+            background: #dc2626;
+        }
+
+        .question-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .small-note {
+            font-size: 12px;
+            color: #6c757d;
+            margin-top: 5px;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .question-type-badge {
+            background: #e2e8f0;
+            padding: 2px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: normal;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <!-- 添加题目卡片 -->
+        <div class="card">
+            <h2>➕ 添加新题目</h2>
+            <div class="form-group">
+                <label>题型</label>
+                <select id="questionType">
+                    <option value="choice">选择题（单选/多选）</option>
+                    <option value="fill">填空题</option>
+                </select>
+            </div>
+
+            <!-- 选择题表单 -->
+            <div id="choiceForm">
+                <div class="form-group">
+                    <label>题目内容</label>
+                    <textarea id="questionText" rows="2" placeholder="例：以下哪些是前端框架？"></textarea>
+                </div>
+                <div id="optionsArea">
+                    <div class="option-row"><span class="option-letter">A.</span><input type="text" id="optA"
+                            placeholder="选项A内容"></div>
+                    <div class="option-row"><span class="option-letter">B.</span><input type="text" id="optB"
+                            placeholder="选项B内容"></div>
+                    <div class="option-row"><span class="option-letter">C.</span><input type="text" id="optC"
+                            placeholder="选项C内容"></div>
+                    <div class="option-row"><span class="option-letter">D.</span><input type="text" id="optD"
+                            placeholder="选项D内容"></div>
+                </div>
+                <div class="form-group">
+                    <label>正确答案（可多选）</label>
+                    <div class="checkbox-group" id="correctCheckboxes">
+                        <label><input type="checkbox" value="A"> A</label>
+                        <label><input type="checkbox" value="B"> B</label>
+                        <label><input type="checkbox" value="C"> C</label>
+                        <label><input type="checkbox" value="D"> D</label>
+                    </div>
+                    <div class="small-note">* 多选题请勾选多个选项</div>
+                </div>
+            </div>
+
+            <!-- 填空题表单 -->
+            <div id="fillForm" style="display: none;">
+                <div class="form-group">
+                    <label>题目内容（用 ______ 表示填空位置）</label>
+                    <textarea id="fillQuestion" rows="2" placeholder="例：Python 中使用 ______ 函数输出内容。"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>正确答案</label>
+                    <input type="text" id="fillAnswer" placeholder="例：print">
+                    <div class="small-note">* 对于多个空，可以用逗号分隔，如： print, input</div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>解析（选填）</label>
+                <input type="text" id="explanation" placeholder="补充解释">
+            </div>
+            <button id="saveBtn">保存题目</button>
+        </div>
+
+        <!-- 搜索/管理卡片 -->
+        <div class="card">
+            <h2>🔍 搜索 & 管理题目</h2>
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="输入关键词（题目/选项/答案/解析）" autocomplete="off">
+                <button id="searchBtn">搜索</button>
+                <button id="clearBtn" class="btn-outline">清空</button>
+                <button id="showAllBtn" class="btn-outline">📋 显示全部</button>
+                <button id="deleteAllBtn" class="btn-danger">🗑️ 删除全部</button>
+            </div>
+            <div id="searchResults">
+                <div class="empty-msg">使用上方的按钮查看或管理题目</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ---------- 数据存储 ----------
+        let questionBank = [];
+
+        // 预置示例（包含选择题和填空题）
+        const sampleQuestions = [
+            {
+                id: Date.now() + 100,
+                type: "choice",
+                text: "以下哪些是前端框架？",
+                options: ["A. React", "B. Django", "C. Vue", "D. Flask"],
+                answerLetters: ["A", "C"],
+                fullAnswerText: "A. React , C. Vue",
+                explanation: "React 和 Vue 是前端框架，Django/Flask 是后端框架。"
+            },
+            {
+                id: Date.now() + 200,
+                type: "choice",
+                text: "HTML5 新增的语义化标签包括？",
+                options: ["A. &lt;div&gt;", "B. &lt;article&gt;", "C. &lt;section&gt;", "D. &lt;header&gt;"],
+                answerLetters: ["B", "C", "D"],
+                fullAnswerText: "B. <article> , C. <section> , D. <header>",
+                explanation: "article、section、header 是 HTML5 新增的语义标签，div 不是新增的。"
+            },
+            {
+                id: Date.now() + 300,
+                type: "fill",
+                text: "Python 中使用 ______ 函数输出内容到控制台。",
+                fillAnswer: "print",
+                fullAnswerText: "print",
+                explanation: "print() 是 Python 内置的输出函数。"
+            }
+        ];
+
+        function loadData() {
+            const stored = localStorage.getItem("questionBank_multichoice_fill");
+            if (stored) {
+                questionBank = JSON.parse(stored);
+            } else {
+                questionBank = sampleQuestions;
+                saveData();
+            }
+        }
+
+        function saveData() {
+            localStorage.setItem("questionBank_multichoice_fill", JSON.stringify(questionBank));
+        }
+
+        // 辅助：根据选择题选项和答案字母生成完整答案文本
+        function getChoiceFullAnswer(options, answerLetters) {
+            if (!answerLetters.length) return "(未选择答案)";
+            const selectedTexts = answerLetters.map(letter => {
+                const option = options.find(opt => opt.startsWith(letter + "."));
+                return option ? option : `${letter}. (选项缺失)`;
+            });
+            return selectedTexts.join(" , ");
+        }
+
+        // 切换题型表单显示
+        function toggleQuestionType() {
+            const type = document.getElementById("questionType").value;
+            if (type === "choice") {
+                document.getElementById("choiceForm").style.display = "block";
+                document.getElementById("fillForm").style.display = "none";
+            } else {
+                document.getElementById("choiceForm").style.display = "none";
+                document.getElementById("fillForm").style.display = "block";
+            }
+        }
+
+        // 添加/保存题目
+        function addQuestion() {
+            const type = document.getElementById("questionType").value;
+            const explanation = document.getElementById("explanation").value.trim();
+
+            if (type === "choice") {
+                // 处理选择题
+                const text = document.getElementById("questionText").value.trim();
+                if (!text) {
+                    alert("请输入题目内容");
+                    return;
+                }
+                const optA = document.getElementById("optA").value.trim();
+                const optB = document.getElementById("optB").value.trim();
+                const optC = document.getElementById("optC").value.trim();
+                const optD = document.getElementById("optD").value.trim();
+                if (!optA || !optB || !optC || !optD) {
+                    alert("请填写完整的 A B C D 四个选项");
+                    return;
+                }
+                const options = [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`];
+
+                const checkboxes = document.querySelectorAll('#correctCheckboxes input[type="checkbox"]');
+                const answerLetters = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
+                if (answerLetters.length === 0) {
+                    alert("请至少勾选一个正确答案");
+                    return;
+                }
+
+                const fullAnswerText = getChoiceFullAnswer(options, answerLetters);
+                const newId = Date.now();
+                questionBank.push({
+                    id: newId,
+                    type: "choice",
+                    text: text,
+                    options: options,
+                    answerLetters: answerLetters,
+                    fullAnswerText: fullAnswerText,
+                    explanation: explanation
+                });
+                saveData();
+
+                // 清空选择题表单
+                document.getElementById("questionText").value = "";
+                document.getElementById("optA").value = "";
+                document.getElementById("optB").value = "";
+                document.getElementById("optC").value = "";
+                document.getElementById("optD").value = "";
+                checkboxes.forEach(cb => cb.checked = false);
+            }
+            else {  // 填空题
+                const text = document.getElementById("fillQuestion").value.trim();
+                if (!text) {
+                    alert("请输入题目内容");
+                    return;
+                }
+                const fillAnswer = document.getElementById("fillAnswer").value.trim();
+                if (!fillAnswer) {
+                    alert("请输入正确答案");
+                    return;
+                }
+                // 支持多空答案：用逗号分隔保存为数组，显示时用逗号连接
+                let answerArray = fillAnswer.split(/[，,]+/).map(s => s.trim()).filter(s => s);
+                const fullAnswerText = answerArray.join(" , ");
+                const newId = Date.now();
+                questionBank.push({
+                    id: newId,
+                    type: "fill",
+                    text: text,
+                    fillAnswer: answerArray,      // 存储数组，便于扩展
+                    fullAnswerText: fullAnswerText,
+                    explanation: explanation
+                });
+                saveData();
+
+                // 清空填空题表单
+                document.getElementById("fillQuestion").value = "";
+                document.getElementById("fillAnswer").value = "";
+            }
+
+            document.getElementById("explanation").value = "";
+            alert("题目添加成功！");
+
+            // 刷新当前视图
+            const searchInput = document.getElementById("searchInput");
+            if (searchInput.value.trim() !== "") {
+                performSearch(searchInput.value.trim());
+            } else {
+                // 可选：显示全部
+                // showAllQuestions();
+            }
+        }
+
+        // 删除单条题目
+        function deleteQuestionById(id) {
+            if (confirm("确定删除这道题目吗？")) {
+                questionBank = questionBank.filter(q => q.id !== id);
+                saveData();
+                const searchTerm = document.getElementById("searchInput").value.trim();
+                if (searchTerm !== "") {
+                    performSearch(searchTerm);
+                } else {
+                    showAllQuestions();
+                }
+            }
+        }
+
+        // 渲染题目列表
+        function renderQuestionList(questions, titlePrefix = "") {
+            const resultsDiv = document.getElementById("searchResults");
+            if (!questions.length) {
+                resultsDiv.innerHTML = `<div class="empty-msg">😔 暂无题目数据</div>`;
+                return;
+            }
+            let html = titlePrefix ? `<div style="margin-bottom:12px; font-size:14px; color:#475569;">${titlePrefix}</div>` : "";
+            questions.forEach(q => {
+                const typeBadge = q.type === "choice" ? "📝 选择题" : "📖 填空题";
+                let optionsHtml = "";
+                if (q.type === "choice") {
+                    optionsHtml = `<div class="options-list">${q.options.map(opt => `<div class="option-line">${escapeHtml(opt)}</div>`).join('')}</div>`;
+                }
+                html += `
+                <div class="result-item">
+                    <div class="question-header">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="question-text">📌 ${escapeHtml(q.text)}</span>
+                            <span class="question-type-badge">${typeBadge}</span>
+                        </div>
+                        <button class="delete-btn" onclick="deleteQuestionById(${q.id})">删除</button>
+                    </div>
+                    ${optionsHtml}
+                    <div class="correct-answer">✅ 正确答案：${escapeHtml(q.fullAnswerText)}</div>
+                    ${q.explanation ? `<div style="margin-top: 10px; font-size: 13px; color: #4b5563; background:#f8fafc; padding:8px; border-radius:8px;">📘 解析：${escapeHtml(q.explanation)}</div>` : ''}
+                </div>
+            `;
+            });
+            resultsDiv.innerHTML = html;
+        }
+
+        // 搜索逻辑（匹配题目文本、选项内容、完整答案文本、解析）
+        function performSearch(keyword) {
+            if (!keyword) {
+                document.getElementById("searchResults").innerHTML = `<div class="empty-msg">请输入关键词进行搜索</div>`;
+                return;
+            }
+            const lowerKeyword = keyword.toLowerCase();
+            const matched = questionBank.filter(q => {
+                if (q.text.toLowerCase().includes(lowerKeyword)) return true;
+                if (q.type === "choice" && q.options.some(opt => opt.toLowerCase().includes(lowerKeyword))) return true;
+                if (q.fullAnswerText.toLowerCase().includes(lowerKeyword)) return true;
+                if (q.explanation && q.explanation.toLowerCase().includes(lowerKeyword)) return true;
+                return false;
+            });
+            if (matched.length === 0) {
+                document.getElementById("searchResults").innerHTML = `<div class="empty-msg">😔 没有找到包含 “${escapeHtml(keyword)}” 的题目</div>`;
+                return;
+            }
+            renderQuestionList(matched, `🔍 找到 ${matched.length} 条结果`);
+        }
+
+        // 显示全部题目
+        function showAllQuestions() {
+            if (questionBank.length === 0) {
+                document.getElementById("searchResults").innerHTML = `<div class="empty-msg">📭 题库为空，请先添加题目</div>`;
+                return;
+            }
+            renderQuestionList(questionBank, `📚 全部题目 (共 ${questionBank.length} 题)`);
+            document.getElementById("searchInput").value = "";
+        }
+
+        // 删除全部题目（二次确认）
+        function deleteAllQuestions() {
+            if (questionBank.length === 0) {
+                alert("题库已经是空的，无需删除");
+                return;
+            }
+            const confirmMsg = "⚠️ 确定要删除全部题目吗？此操作不可恢复！";
+            if (confirm(confirmMsg)) {
+                questionBank = [];
+                saveData();
+                document.getElementById("searchResults").innerHTML = `<div class="empty-msg">✅ 已清空所有题目</div>`;
+                document.getElementById("searchInput").value = "";
+            }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return "";
+            return str.replace(/[&<>]/g, function (m) {
+                if (m === "&") return "&amp;";
+                if (m === "<") return "&lt;";
+                if (m === ">") return "&gt;";
+                return m;
+            });
+        }
+
+        // 事件绑定和初始化
+        document.getElementById("questionType").addEventListener("change", toggleQuestionType);
+        document.getElementById("saveBtn").addEventListener("click", addQuestion);
+        document.getElementById("searchBtn").addEventListener("click", () => {
+            const keyword = document.getElementById("searchInput").value.trim();
+            performSearch(keyword);
+        });
+        document.getElementById("clearBtn").addEventListener("click", () => {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("searchResults").innerHTML = `<div class="empty-msg">使用上方的按钮查看或管理题目</div>`;
+        });
+        document.getElementById("showAllBtn").addEventListener("click", showAllQuestions);
+        document.getElementById("deleteAllBtn").addEventListener("click", deleteAllQuestions);
+        document.getElementById("searchInput").addEventListener("keypress", (e) => {
+            if (e.key === "Enter") {
+                const keyword = document.getElementById("searchInput").value.trim();
+                performSearch(keyword);
+            }
+        });
+
+        // 初始化显示
+        toggleQuestionType();
+        loadData();
+        // 默认显示全部（可选）
+        // showAllQuestions();
+    </script>
+</body>
+
+</html>
