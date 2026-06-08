@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>显示密码和隐藏密码</title>
+</head>
+<style>
+    label {
+        position: relative;
+    }
+
+    input {
+        display: block;
+        margin: 50px auto;
+        outline: none;
+        border: 1px solid #000;
+    }
+
+    img {
+        position: absolute;
+        width: 20px;
+        top: 0.2px;
+        left: 909px;
+    }
+</style>
+
+<body>
+    <label for="">
+        <input type="password" id="pwd">
+        <img src="../images/Hidden.png" alt="" id="photo">
+    </label>
+    <script>
+        var pwd = document.getElementById('pwd');
+        var photo = document.getElementById('photo');
+        var flag = 1;
+        photo.onclick = function () {
+            if (flag == 1) {
+                pwd.type = 'text';
+                photo.src = '../images/Open.png';
+                flag = 0;
+            } else {
+                pwd.type = 'password';
+                photo.src = '../images/Hidden.png';
+                flag = 1;
+            }
+        }
+    </script>
+</body>
+
+</html>

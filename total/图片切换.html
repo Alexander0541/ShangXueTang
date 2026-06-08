@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习</title>
+    <style>
+        img {
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <button id="first">第一张图片</button>
+    <button id="second">第二张图片</button>
+    <img src="../images/Open.png" alt="" id="clock">
+    <img src="../images/Hidden.png" alt="" id="banner">
+</body>
+<script>
+    var firstPhoto = document.getElementById('first');
+    var secondPhoto = document.getElementById('second');
+    var clock = document.getElementById('clock');
+    var banner = document.getElementById('banner')
+    firstPhoto.onclick = function () {
+        clock.style.display = 'block';
+        banner.style.display = 'none';
+    }
+    secondPhoto.onclick = function () {
+        clock.style.display = 'none';
+        banner.style.display = 'block';
+    }
+</script>
+
+</html>

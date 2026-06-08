@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>练习</title>
+    <link rel="stylesheet" href="../content/common.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
+            display: block;
+            float: left;
+        }
+
+        #pdd {
+            width: 120px;
+            height: 120px;
+            margin-left: 730px;
+        }
+
+        #concelNo {
+            width: 20px;
+            height: 20px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="w">
+        <img src="../images/pdd.png" alt="" id="pdd">
+        <img src="../images/wrong.jpg" alt="" id="concelNo">
+        <button id="returnContent"><a href="../content/project.html">返回目录页</a></button>
+    </div>
+    <script>
+        var concel = document.getElementById('concelNo');
+        var pddPhoto = document.getElementById('pdd')
+        concel.onclick = function () {
+            pddPhoto.style.display = 'none';
+            concel.style.display = 'none';
+        }
+        pddPhoto.onclick = function () {
+            pddPhoto.style.margin = '20px';
+        }
+    </script>
+</body>
+
+</html>

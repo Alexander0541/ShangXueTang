@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>homework</title>
+    <style>
+        .register {
+            width: 600px;
+            margin: 50px auto;
+        }
+
+        #register-input {
+            display: inline-block;
+            color: #999;
+            border: 1px solid #999;
+            padding-left: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register">
+        <input type="text" value="邮箱/ID/手机号" id="register-input">
+    </div>
+    <script>
+        var text = document.getElementById('register-input');
+        text.onfocus = function () {
+            if (this.value === '邮箱/ID/手机号') {
+                this.value = '';
+                this.style.color = '#000';
+            }
+            this.style.outline = 'none';
+            this.style.border = '1px solid pink';
+        }
+        text.onblur = function () {
+            if (this.value === '') {
+                this.value = '邮箱/ID/手机号';
+                this.style.color = '#999';
+            }
+            this.style.border = '1px solid #999';
+        }
+    </script>
+</body>
+
+</html>

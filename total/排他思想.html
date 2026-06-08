@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>排他思想</title>
+</head>
+<style>
+    button {
+        float: left;
+        margin-left: 20px;
+        width: 70px;
+        height: 40px;
+    }
+
+    .green {
+        background-color: greenyellow;
+        color: #999;
+    }
+</style>
+
+<body>
+    <button>按钮</button>
+    <button>按钮</button>
+    <button>按钮</button>
+    <button>按钮</button>
+    <button>按钮</button>
+    <button>按钮</button>
+</body>
+<script>
+    var btns = document.querySelectorAll('button');
+    for (var i = 0; i < btns.length; i++) {
+        btns[i].onclick = function () {
+            for (var i = 0; i < btns.length; i++) {
+                btns[i].style.backgroundColor = '';
+            }
+            this.style.backgroundColor = 'greenyellow';
+            // 然而，如果写成btns[i].style.backgroundColor = 'greenyellow';这行代码试图设置数组btns中第i个元素的背景颜色。
+            // 但是，在事件处理函数中，变量i并不存在，因为它是外部循环的变量，并且在此上下文中无法访问。
+            // 此外，即使i是可访问的，这样的代码也会尝试设置循环中的每个按钮的背景颜色，而不是仅设置被点击的那个按钮的颜色。
+        }
+
+    }
+</script>
+
+</html>

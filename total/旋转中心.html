@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../content/common.css">
+    <title>Document</title>
+    <style>
+        div {
+            width: 200px;
+            height: 200px;
+            border: 1px solid pink;
+            margin: 100px auto;
+            overflow: hidden;
+        }
+
+        div::before {
+            content: '传媒';
+            display: block;
+            width: 100%;
+            height: 100%;
+            background-color: hotpink;
+            color: aliceblue;
+            font-size: 40px;
+            line-height: 200px;
+            text-align: center;
+            transform: rotate(0deg);
+            transform-origin: left bottom;
+            transition: all 0.8s;
+        }
+
+        div:hover::before {
+            transform: rotate(90deg);
+        }
+    </style>
+</head>
+
+<body>
+    <div>
+    </div>
+    <button id="returnContent"><a href="../content/project.html">返回目录页</a></button>
+</body>
+
+</html>

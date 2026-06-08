@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+
+</style>
+
+<body>
+    <ul>
+        <li>这是事件委托的原理</li>
+        <li>这是事件委托的原理</li>
+        <li>这是事件委托的原理</li>
+        <li>这是事件委托的原理</li>
+        <li>这是事件委托的原理</li>
+    </ul>
+</body>
+<script>
+    var lis = document.querySelector('ul').querySelectorAll('li');
+    for (var i = 0; i < lis.length; i++) {
+        lis[i].addEventListener('click', function (e) {
+            for (var i = 0; i < lis.length; i++) {
+                lis[i].style.backgroundColor = '';
+            }
+            e.target.style.backgroundColor = 'pink';
+        });
+    }
+
+</script>
+
+</html>

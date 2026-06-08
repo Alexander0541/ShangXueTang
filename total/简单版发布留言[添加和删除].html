@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<style>
+    * {
+        margin: 0;
+        padding: 0;
+    }
+
+    a {
+        text-decoration: none;
+        color: red;
+    }
+
+    .box {
+        margin-top: 40px;
+        margin-left: 40px;
+    }
+
+    #tt {
+        border: 1px solid pink;
+    }
+
+    li {
+        padding: 5px;
+        height: 20px;
+        line-height: 20px;
+        font-size: 14px;
+        width: 180px;
+        background-color: pink;
+        margin: 15px 0;
+    }
+
+    li a {
+        float: right;
+    }
+
+    ::placeholder {
+        color: #555;
+        font-size: 18px;
+        font-weight: bold;
+        text-align: center;
+    }
+</style>
+
+<body>
+    <div class="box">
+        <textarea name="" id="tt" rows="10" cols="60" placeholder="发布你的留言，让我看到你"></textarea>
+        <button id="submit">发布</button>
+        <!-- <button id="delete">删除</button> -->
+        <ul>
+
+        </ul>
+    </div>
+
+</body>
+<script>
+    var btn = document.getElementById('submit');
+    // var remove = document.getElementById('delete');这是按钮删除的做法
+    var text = document.querySelector('textarea');
+
+    var ul = document.querySelector('ul');
+    btn.onclick = function () {
+        if (text.value == '') {
+            alert('你没有输入内容');
+            // 添加return false作用是没有输出内容，但是不会添加li， 如果没有return false
+            // 就会出现提示，但是仍然有li出现
+            return false;
+        } else {
+            var li = document.createElement('li');
+            // javascript:;或者javascript:void(0);这两个是阻止链接跳转
+            li.innerHTML = text.value + "<a href='javascript:;'>删除</a>"
+            // ul.appendChild(li);这是往后的
+            ul.insertBefore(li, ul.children[0]);//这是往前的
+            var as = document.querySelectorAll('a');
+            for (var i = 0; i < as.length; i++) {
+                as[i].onclick = function () {
+                    ul.removeChild(this.parentNode);
+                }
+            }
+        }
+    }
+
+    // 这是按钮删除的做法
+    // remove.onclick = function () {
+    //     if (ul.children.length == 0) {
+    //         // 这个是禁用删除键
+    //         this.disabled = true;
+    //     }
+    //     else {
+    //         ul.removeChild(ul.children[0]);
+    //     }
+    // }
+
+
+</script>
+
+</html>

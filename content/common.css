@@ -1,0 +1,18 @@
+#returnContent {
+    float: right;
+    border-radius: 20cap;
+    border: 1px solid #8eea60;
+    margin-right: 15px;
+    padding: 15px 15px;
+    background-color: #fff;
+    color: #000000;
+}
+
+#returnContent a {
+    text-decoration: none;
+    color: #5b5454;
+}
+
+#returnContent:hover {
+    background-color: #ddd;
+}

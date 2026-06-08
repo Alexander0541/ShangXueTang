@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<title>尚学堂登入页面</title>
+	<link rel="stylesheet" href="../content/common.css">
+	<style>
+		/* 更简洁、现代的CSS样式 */
+		body {
+			font-family: 'Helvetica Neue', sans-serif;
+			background: linear-gradient(to bottom, rgba(241, 217, 221, 0.8), rgba(241, 217, 221, 0.8)), url(./starsky.jpg) no-repeat center center fixed;
+			background-size: cover;
+			color: #333;
+		}
+
+		h1 {
+			text-align: center;
+			font-size: 2em;
+			margin-top: 50px;
+			margin-bottom: 30px;
+		}
+
+		fieldset {
+			border: none;
+			padding: 20px;
+			margin-bottom: 20px;
+			background-color: rgba(255, 255, 255, 0.9);
+			border-radius: 8px;
+		}
+
+		legend {
+			font-size: 1.2em;
+			padding: 0 10px;
+			font-weight: bold;
+		}
+
+		input[type="text"],
+		input[type="password"],
+		input[type="number"],
+		textarea,
+		select {
+			width: 100%;
+			padding: 10px;
+			margin-bottom: 15px;
+			border: 1px solid #ddd;
+			border-radius: 4px;
+			box-sizing: border-box;
+			/* 使输入框包括在内边距和边框 */
+		}
+
+		input[type="checkbox"] {
+			margin-right: 10px;
+		}
+
+		input[type="submit"],
+		input[type="reset"] {
+			width: auto;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 4px;
+			background-color: #5cb85c;
+			color: white;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+
+		input[type="submit"]:hover,
+		input[type="reset"]:hover {
+			background-color: #4cae4c;
+		}
+
+		#returnContent {
+			display: inline-block;
+			padding: 10px 20px;
+			border: none;
+			border-radius: 4px;
+			background-color: #d9534f;
+			color: white;
+			cursor: pointer;
+			text-decoration: none;
+			transition: background-color 0.3s ease;
+		}
+
+		#returnContent:hover {
+			background-color: #c9302c;
+		}
+
+		/* 修正一些布局问题 */
+		.total {
+			width: 100%;
+			max-width: 500px;
+			margin: 50px auto;
+		}
+
+		.sure {
+			text-align: center;
+			margin-top: 20px;
+		}
+
+		.sure input {
+			margin: 0 10px;
+		}
+	</style>
+</head>
+
+<body>
+	<h1>尚学堂学生信息表</h1>
+	<fieldset class="total">
+		<!-- 基本信息 -->
+		<fieldset>
+			<legend>基本信息</legend>
+			<form action="regist" method="post" class="first_fieldset">
+				<span>学生姓名:<input type="text" name="information" id="information" class="information"
+						placeholder="请输入你的信息" /></span>
+				<span class="password">设置密码:<input type="password" name="password" placeholder=" 请输入你的密码" /></span>
+				<span style="margin-left: 20px;">学号:<input type="number" id="number" placeholder="请输入你的学号"></span>
+			</form>
+		</fieldset>
+		<!-- 性别和籍贯 -->
+		<fieldset>
+			<!-- 性别 -->
+			<legend>性别</legend>
+			<form class="sex">
+				<input type="radio" name="sex" id="men" />
+				<label for="men">男生</label>
+				<input type="radio" name="sex" id="women" />
+				<label for="women">女生</label>
+				<!-- <label></label>标签的for属性应当与id属性相同, label标签可以让你点击男生按钮便可选中,而无需点圆圈才能选中 -->
+			</form>
+			<hr />
+			<!-- 籍贯 -->
+			<form action="homeplace" method="post">籍贯
+				<select>
+					<option value="Anhui">安徽</option>
+					<option value="Beijing" selected="selected">北京</option>
+					<option value="Chongqing">重庆</option>
+					<option value="Fujian">福建</option>
+					<option value="Gansu">甘肃</option>
+					<option value="Guangdong">广东</option>
+					<option value="Guangxi">广西</option>
+					<option value="Guizhou">贵州</option>
+					<option value="Hainan">海南</option>
+					<option value="Hebei">河北</option>
+					<option value="Heilongjiang">黑龙江</option>
+					<option value="Henan">河南</option>
+					<option value="Hong Kong">香港</option>
+					<option value="Hubei">湖北</option>
+					<option value="Hunan">湖南</option>
+					<option value="Inner Mongolia">内蒙古</option>
+					<option value="Jiangsu">江苏</option>
+					<option value="Jiangxi">江西</option>
+					<option value="Jilin">吉林</option>
+					<option value="Liaoning">辽宁</option>
+					<option value="Macau">澳门</option>
+					<option value="Ningxia">宁夏</option>
+					<option value="Qinghai">青海</option>
+					<option value="Shaanxi">陕西</option>
+					<option value="Shandong">山东</option>
+					<option value="Shanghai">上海</option>
+					<option value="Shanxi">山西</option>
+					<option value="Sichuan">四川</option>
+					<option value="Taiwan">台湾</option>
+					<option value="Tianjin">天津</option>
+					<option value="Tibet">西藏</option>
+					<option value="Xinjiang">新疆</option>
+					<option value="Yunnan">云南</option>
+					<option value="Zhejiang">浙江</option>
+				</select>
+			</form>
+			<hr />
+			<!-- 自我介绍 -->
+			<form>自我介绍
+				<textarea rows="1" cols="90" name="introduce">
+					</textarea>
+			</form>
+		</fieldset>
+		<fieldset>
+			<legend>兴趣爱好</legend>
+			<form class="hobby">
+				<input type="checkbox" name="hobby" id="hobby" />足球
+				<input type="checkbox" name="hobby" id="hobby" />篮球
+				<input type="checkbox" name="hobby" id="hobby" />动漫
+				<input type="checkbox" name="hobby" id="hobby" />电影
+				<input type="checkbox" name="hobby" id="hobby" />读书
+				<!-- label不适用与checkbox这种多选情况 -->
+			</form>
+			<hr />
+			<form>
+				上传照片:<input type="file" name="file" />
+			</form>
+		</fieldset>
+		<fieldset>
+			<legend></legend>
+			<!-- 填写和提交 -->
+			<form style="text-align:center" class="sure">
+				<input type="reset" value="重新填写" class="reset" />
+				<input type="submit" value="填好了" class="submit" />
+			</form>
+		</fieldset>
+	</fieldset>
+	<button id="returnContent"><a href="../content/project.html">返回目录页</a></button>
+</body>
+
+</html>

@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码框验证信息</title>
+    <style>
+        div {
+            width: 600px;
+            margin: 100px auto;
+
+        }
+
+        .message {
+            display: inline-block;
+            font-size: 12px;
+            color: #999;
+            /* background: url('') no-repeat left center; */
+            padding-left: 20px;
+        }
+
+        .wrong {
+            color: red;
+        }
+
+        .right {
+            color: green;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="register">
+        <input type="password" class="ipt">
+        <p class="message">请输入6~16位密码</p>
+    </div>
+    <script>
+        var input = document.querySelector('.ipt');
+        var message = document.querySelector('.message');
+        input.onblur = function () {
+            if (input.value.length < 6 || input.value.length > 16) {
+                message.innerHTML = '密码较短，最短支持6个字符';
+                message.className = 'message wrong';
+            }
+            else {
+                message.innerHTML = '密码符合标准，可以使用';
+                message.className = 'message right';
+            }
+        }
+    </script>
+</body>
+
+</html>
