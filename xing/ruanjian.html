@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>题库管理 - 选择题+填空题</title>
+    <title>题库管理 - 选择题+填空题+判断题（支持导入导出）</title>
     <style>
         * {
             margin: 0;
@@ -92,6 +92,23 @@
         }
 
         .checkbox-group label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: normal;
+            margin-bottom: 0;
+            cursor: pointer;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            align-items: center;
+            margin-top: 8px;
+        }
+
+        .radio-group label {
             display: inline-flex;
             align-items: center;
             gap: 6px;
@@ -220,19 +237,32 @@
             margin-top: 5px;
         }
 
-        .action-buttons {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 20px;
-        }
-
         .question-type-badge {
             background: #e2e8f0;
             padding: 2px 10px;
             border-radius: 20px;
             font-size: 12px;
             font-weight: normal;
+        }
+
+        .file-input-label {
+            background: #f1f5f9;
+            color: #1e293b;
+            border: 1px solid #cbd5e1;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-block;
+        }
+
+        .file-input-label:hover {
+            background: #e2e8f0;
+        }
+
+        input[type="file"] {
+            display: none;
         }
     </style>
 </head>
@@ -247,6 +277,7 @@
                 <select id="questionType">
                     <option value="choice">选择题（单选/多选）</option>
                     <option value="fill">填空题</option>
+                    <option value="tf">判断题</option>
                 </select>
             </div>
 
@@ -291,6 +322,21 @@
                 </div>
             </div>
 
+            <!-- 判断题表单 -->
+            <div id="tfForm" style="display: none;">
+                <div class="form-group">
+                    <label>题目内容</label>
+                    <textarea id="tfQuestion" rows="2" placeholder="例：Python 是一种编译型语言。"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>正确答案</label>
+                    <div class="radio-group">
+                        <label><input type="radio" name="tfAnswer" value="true"> 正确（✓）</label>
+                        <label><input type="radio" name="tfAnswer" value="false"> 错误（✗）</label>
+                    </div>
+                </div>
+            </div>
+
             <div class="form-group">
                 <label>解析（选填）</label>
                 <input type="text" id="explanation" placeholder="补充解释">
@@ -307,6 +353,9 @@
                 <button id="clearBtn" class="btn-outline">清空</button>
                 <button id="showAllBtn" class="btn-outline">📋 显示全部</button>
                 <button id="deleteAllBtn" class="btn-danger">🗑️ 删除全部</button>
+                <button id="exportBtn" class="btn-outline">💾 导出题库</button>
+                <label class="file-input-label" for="importFile">📂 导入题库</label>
+                <input type="file" id="importFile" accept=".json">
             </div>
             <div id="searchResults">
                 <div class="empty-msg">使用上方的按钮查看或管理题目</div>
@@ -318,7 +367,7 @@
         // ---------- 数据存储 ----------
         let questionBank = [];
 
-        // 预置示例（包含选择题和填空题）
+        // 预置示例（包含选择题、填空题、判断题）
         const sampleQuestions = [
             {
                 id: Date.now() + 100,
@@ -342,14 +391,22 @@
                 id: Date.now() + 300,
                 type: "fill",
                 text: "Python 中使用 ______ 函数输出内容到控制台。",
-                fillAnswer: "print",
+                fillAnswer: ["print"],
                 fullAnswerText: "print",
                 explanation: "print() 是 Python 内置的输出函数。"
+            },
+            {
+                id: Date.now() + 400,
+                type: "tf",
+                text: "JavaScript 是静态类型语言。",
+                tfAnswer: false,
+                fullAnswerText: "错误",
+                explanation: "JavaScript 是动态类型语言，变量可以随时改变类型。"
             }
         ];
 
         function loadData() {
-            const stored = localStorage.getItem("questionBank_multichoice_fill");
+            const stored = localStorage.getItem("questionBank_tf");
             if (stored) {
                 questionBank = JSON.parse(stored);
             } else {
@@ -359,7 +416,7 @@
         }
 
         function saveData() {
-            localStorage.setItem("questionBank_multichoice_fill", JSON.stringify(questionBank));
+            localStorage.setItem("questionBank_tf", JSON.stringify(questionBank));
         }
 
         // 辅助：根据选择题选项和答案字母生成完整答案文本
@@ -375,13 +432,9 @@
         // 切换题型表单显示
         function toggleQuestionType() {
             const type = document.getElementById("questionType").value;
-            if (type === "choice") {
-                document.getElementById("choiceForm").style.display = "block";
-                document.getElementById("fillForm").style.display = "none";
-            } else {
-                document.getElementById("choiceForm").style.display = "none";
-                document.getElementById("fillForm").style.display = "block";
-            }
+            document.getElementById("choiceForm").style.display = type === "choice" ? "block" : "none";
+            document.getElementById("fillForm").style.display = type === "fill" ? "block" : "none";
+            document.getElementById("tfForm").style.display = type === "tf" ? "block" : "none";
         }
 
         // 添加/保存题目
@@ -390,42 +443,24 @@
             const explanation = document.getElementById("explanation").value.trim();
 
             if (type === "choice") {
-                // 处理选择题
                 const text = document.getElementById("questionText").value.trim();
-                if (!text) {
-                    alert("请输入题目内容");
-                    return;
-                }
+                if (!text) { alert("请输入题目内容"); return; }
                 const optA = document.getElementById("optA").value.trim();
                 const optB = document.getElementById("optB").value.trim();
                 const optC = document.getElementById("optC").value.trim();
                 const optD = document.getElementById("optD").value.trim();
-                if (!optA || !optB || !optC || !optD) {
-                    alert("请填写完整的 A B C D 四个选项");
-                    return;
-                }
+                if (!optA || !optB || !optC || !optD) { alert("请填写完整的 A B C D 四个选项"); return; }
                 const options = [`A. ${optA}`, `B. ${optB}`, `C. ${optC}`, `D. ${optD}`];
-
                 const checkboxes = document.querySelectorAll('#correctCheckboxes input[type="checkbox"]');
                 const answerLetters = Array.from(checkboxes).filter(cb => cb.checked).map(cb => cb.value);
-                if (answerLetters.length === 0) {
-                    alert("请至少勾选一个正确答案");
-                    return;
-                }
-
+                if (answerLetters.length === 0) { alert("请至少勾选一个正确答案"); return; }
                 const fullAnswerText = getChoiceFullAnswer(options, answerLetters);
                 const newId = Date.now();
                 questionBank.push({
-                    id: newId,
-                    type: "choice",
-                    text: text,
-                    options: options,
-                    answerLetters: answerLetters,
-                    fullAnswerText: fullAnswerText,
-                    explanation: explanation
+                    id: newId, type: "choice", text: text, options: options,
+                    answerLetters: answerLetters, fullAnswerText: fullAnswerText, explanation: explanation
                 });
                 saveData();
-
                 // 清空选择题表单
                 document.getElementById("questionText").value = "";
                 document.getElementById("optA").value = "";
@@ -434,73 +469,65 @@
                 document.getElementById("optD").value = "";
                 checkboxes.forEach(cb => cb.checked = false);
             }
-            else {  // 填空题
+            else if (type === "fill") {
                 const text = document.getElementById("fillQuestion").value.trim();
-                if (!text) {
-                    alert("请输入题目内容");
-                    return;
-                }
-                const fillAnswer = document.getElementById("fillAnswer").value.trim();
-                if (!fillAnswer) {
-                    alert("请输入正确答案");
-                    return;
-                }
-                // 支持多空答案：用逗号分隔保存为数组，显示时用逗号连接
-                let answerArray = fillAnswer.split(/[，,]+/).map(s => s.trim()).filter(s => s);
+                if (!text) { alert("请输入题目内容"); return; }
+                const fillAnswerRaw = document.getElementById("fillAnswer").value.trim();
+                if (!fillAnswerRaw) { alert("请输入正确答案"); return; }
+                let answerArray = fillAnswerRaw.split(/[，,]+/).map(s => s.trim()).filter(s => s);
                 const fullAnswerText = answerArray.join(" , ");
                 const newId = Date.now();
                 questionBank.push({
-                    id: newId,
-                    type: "fill",
-                    text: text,
-                    fillAnswer: answerArray,      // 存储数组，便于扩展
-                    fullAnswerText: fullAnswerText,
-                    explanation: explanation
+                    id: newId, type: "fill", text: text,
+                    fillAnswer: answerArray, fullAnswerText: fullAnswerText, explanation: explanation
                 });
                 saveData();
-
-                // 清空填空题表单
                 document.getElementById("fillQuestion").value = "";
                 document.getElementById("fillAnswer").value = "";
+            }
+            else if (type === "tf") {
+                const text = document.getElementById("tfQuestion").value.trim();
+                if (!text) { alert("请输入题目内容"); return; }
+                const tfAnswerRadio = document.querySelector('input[name="tfAnswer"]:checked');
+                if (!tfAnswerRadio) { alert("请选择正确答案（正确或错误）"); return; }
+                const tfAnswer = tfAnswerRadio.value === "true";
+                const fullAnswerText = tfAnswer ? "正确" : "错误";
+                const newId = Date.now();
+                questionBank.push({
+                    id: newId, type: "tf", text: text,
+                    tfAnswer: tfAnswer, fullAnswerText: fullAnswerText, explanation: explanation
+                });
+                saveData();
+                document.getElementById("tfQuestion").value = "";
+                const radios = document.querySelectorAll('input[name="tfAnswer"]');
+                radios.forEach(radio => radio.checked = false);
             }
 
             document.getElementById("explanation").value = "";
             alert("题目添加成功！");
-
-            // 刷新当前视图
             const searchInput = document.getElementById("searchInput");
-            if (searchInput.value.trim() !== "") {
-                performSearch(searchInput.value.trim());
-            } else {
-                // 可选：显示全部
-                // showAllQuestions();
-            }
+            if (searchInput.value.trim() !== "") performSearch(searchInput.value.trim());
         }
 
-        // 删除单条题目
         function deleteQuestionById(id) {
             if (confirm("确定删除这道题目吗？")) {
                 questionBank = questionBank.filter(q => q.id !== id);
                 saveData();
                 const searchTerm = document.getElementById("searchInput").value.trim();
-                if (searchTerm !== "") {
-                    performSearch(searchTerm);
-                } else {
-                    showAllQuestions();
-                }
+                if (searchTerm !== "") performSearch(searchTerm);
+                else showAllQuestions();
             }
         }
 
-        // 渲染题目列表
         function renderQuestionList(questions, titlePrefix = "") {
             const resultsDiv = document.getElementById("searchResults");
-            if (!questions.length) {
-                resultsDiv.innerHTML = `<div class="empty-msg">😔 暂无题目数据</div>`;
-                return;
-            }
+            if (!questions.length) { resultsDiv.innerHTML = `<div class="empty-msg">😔 暂无题目数据</div>`; return; }
             let html = titlePrefix ? `<div style="margin-bottom:12px; font-size:14px; color:#475569;">${titlePrefix}</div>` : "";
             questions.forEach(q => {
-                const typeBadge = q.type === "choice" ? "📝 选择题" : "📖 填空题";
+                let typeBadge = "";
+                if (q.type === "choice") typeBadge = "📝 选择题";
+                else if (q.type === "fill") typeBadge = "📖 填空题";
+                else if (q.type === "tf") typeBadge = "⚖️ 判断题";
                 let optionsHtml = "";
                 if (q.type === "choice") {
                     optionsHtml = `<div class="options-list">${q.options.map(opt => `<div class="option-line">${escapeHtml(opt)}</div>`).join('')}</div>`;
@@ -523,12 +550,8 @@
             resultsDiv.innerHTML = html;
         }
 
-        // 搜索逻辑（匹配题目文本、选项内容、完整答案文本、解析）
         function performSearch(keyword) {
-            if (!keyword) {
-                document.getElementById("searchResults").innerHTML = `<div class="empty-msg">请输入关键词进行搜索</div>`;
-                return;
-            }
+            if (!keyword) { document.getElementById("searchResults").innerHTML = `<div class="empty-msg">请输入关键词进行搜索</div>`; return; }
             const lowerKeyword = keyword.toLowerCase();
             const matched = questionBank.filter(q => {
                 if (q.text.toLowerCase().includes(lowerKeyword)) return true;
@@ -544,7 +567,6 @@
             renderQuestionList(matched, `🔍 找到 ${matched.length} 条结果`);
         }
 
-        // 显示全部题目
         function showAllQuestions() {
             if (questionBank.length === 0) {
                 document.getElementById("searchResults").innerHTML = `<div class="empty-msg">📭 题库为空，请先添加题目</div>`;
@@ -554,19 +576,61 @@
             document.getElementById("searchInput").value = "";
         }
 
-        // 删除全部题目（二次确认）
         function deleteAllQuestions() {
-            if (questionBank.length === 0) {
-                alert("题库已经是空的，无需删除");
-                return;
-            }
-            const confirmMsg = "⚠️ 确定要删除全部题目吗？此操作不可恢复！";
-            if (confirm(confirmMsg)) {
+            if (questionBank.length === 0) { alert("题库已经是空的，无需删除"); return; }
+            if (confirm("⚠️ 确定要删除全部题目吗？此操作不可恢复！")) {
                 questionBank = [];
                 saveData();
                 document.getElementById("searchResults").innerHTML = `<div class="empty-msg">✅ 已清空所有题目</div>`;
                 document.getElementById("searchInput").value = "";
             }
+        }
+
+        // 导出题库为 JSON 文件
+        function exportQuestions() {
+            if (questionBank.length === 0) {
+                alert("题库为空，无可导出内容");
+                return;
+            }
+            const dataStr = JSON.stringify(questionBank, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `题库备份_${new Date().toISOString().slice(0, 19)}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
+        // 导入题库（合并 + 去重，基于 id）
+        function importQuestions(file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (!Array.isArray(imported)) throw new Error("格式错误");
+                    const existingIds = new Set(questionBank.map(q => q.id));
+                    let addedCount = 0, replacedCount = 0;
+                    for (const newQ of imported) {
+                        if (existingIds.has(newQ.id)) {
+                            const index = questionBank.findIndex(q => q.id === newQ.id);
+                            questionBank[index] = newQ;
+                            replacedCount++;
+                        } else {
+                            questionBank.push(newQ);
+                            addedCount++;
+                        }
+                    }
+                    saveData();
+                    alert(`导入完成！新增 ${addedCount} 题，替换 ${replacedCount} 题。`);
+                    showAllQuestions();
+                } catch (err) {
+                    alert("文件解析失败，请确保是有效的 JSON 题库文件");
+                }
+            };
+            reader.readAsText(file);
         }
 
         function escapeHtml(str) {
@@ -579,31 +643,28 @@
             });
         }
 
-        // 事件绑定和初始化
+        // 事件绑定
         document.getElementById("questionType").addEventListener("change", toggleQuestionType);
         document.getElementById("saveBtn").addEventListener("click", addQuestion);
-        document.getElementById("searchBtn").addEventListener("click", () => {
-            const keyword = document.getElementById("searchInput").value.trim();
-            performSearch(keyword);
-        });
+        document.getElementById("searchBtn").addEventListener("click", () => performSearch(document.getElementById("searchInput").value.trim()));
         document.getElementById("clearBtn").addEventListener("click", () => {
             document.getElementById("searchInput").value = "";
             document.getElementById("searchResults").innerHTML = `<div class="empty-msg">使用上方的按钮查看或管理题目</div>`;
         });
         document.getElementById("showAllBtn").addEventListener("click", showAllQuestions);
         document.getElementById("deleteAllBtn").addEventListener("click", deleteAllQuestions);
+        document.getElementById("exportBtn").addEventListener("click", exportQuestions);
+        document.getElementById("importFile").addEventListener("change", (e) => {
+            if (e.target.files.length > 0) importQuestions(e.target.files[0]);
+            e.target.value = "";
+        });
         document.getElementById("searchInput").addEventListener("keypress", (e) => {
-            if (e.key === "Enter") {
-                const keyword = document.getElementById("searchInput").value.trim();
-                performSearch(keyword);
-            }
+            if (e.key === "Enter") performSearch(document.getElementById("searchInput").value.trim());
         });
 
-        // 初始化显示
         toggleQuestionType();
         loadData();
-        // 默认显示全部（可选）
-        // showAllQuestions();
+        showAllQuestions();
     </script>
 </body>
 
